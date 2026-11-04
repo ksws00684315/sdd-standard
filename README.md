@@ -19,6 +19,7 @@ cd workspace
 
 | 文档 | 给谁看 | 内容 |
 |---|---|---|
+| [方案总览](docs/overview.md) | 架构师、负责人、新成员 | 一页看懂整套方案：架构、spec 管理、流程、skill、推广计划、关键决策 |
 | [团队 SDD 规范](docs/standard.md) | 所有人 | 规范正文：spec 放哪、怎么分档、每个阶段做什么、怎么评审 |
 | [服务仓库 spec 管理规范](docs/spec-management.md) | 所有人 | 服务仓库里 spec 的目录、命名、状态、职责、更新和归档规则 |
 | [上手指南](docs/getting-started.md) | 新成员 | 初始化、各 AI 工具怎么接入、一个需求从头到尾怎么走 |
