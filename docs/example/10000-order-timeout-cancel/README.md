@@ -1,4 +1,4 @@
-# 示例：REQ-0000 订单超时未支付自动取消
+# 示例：10000 订单超时未支付自动取消
 
 这是一个虚构的 L2 跨服务需求，展示规范要求的全部文档写出来是什么样。目录结构和真实情况一致：文档放在两个服务仓库里，这里只是把它们放在一起方便阅读。
 
@@ -10,17 +10,17 @@
 
 | 文件 | 由哪个命令产出 | 阶段 |
 |---|---|---|
-| [order-service/.../spec.md](order-service/docs/changes/REQ-0000-order-timeout-cancel/spec.md) | `/sdd-spec` | ② 写 spec |
-| [order-service/.../design.md](order-service/docs/changes/REQ-0000-order-timeout-cancel/design.md) | `/sdd-spec` | ② 写 spec |
-| [order-service/.../tasks.md](order-service/docs/changes/REQ-0000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
-| [inventory-service/.../tasks.md](inventory-service/docs/changes/REQ-0000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
-| [inventory-service/.../verify/stock-release.sh](inventory-service/docs/changes/REQ-0000-order-timeout-cancel/verify/stock-release.sh) | `/sdd-implement`，T1 的降级验证脚本 | ⑤ 实现 |
+| [order-service/.../spec.md](order-service/docs/changes/10000-order-timeout-cancel/spec.md) | `/sdd-spec` | ② 写 spec |
+| [order-service/.../design.md](order-service/docs/changes/10000-order-timeout-cancel/design.md) | `/sdd-spec` | ② 写 spec |
+| [order-service/.../tasks.md](order-service/docs/changes/10000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
+| [inventory-service/.../tasks.md](inventory-service/docs/changes/10000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
+| [inventory-service/.../verify/stock-release.sh](inventory-service/docs/changes/10000-order-timeout-cancel/verify/stock-release.sh) | `/sdd-implement`，T1 的降级验证脚本 | ⑤ 实现 |
 | [order-service/docs/specs/README.md](order-service/docs/specs/README.md) | 服务接入时创建，之后按需更新 | 长期维护 |
 | [order-service/docs/specs/order-lifecycle.md](order-service/docs/specs/order-lifecycle.md) | `/sdd-implement`，随 T3、T4 的代码一起更新 | ⑤ 实现 |
 
 `order-lifecycle.md` 展示的是 T3、T4 合并之后的样子：现状规格只在代码合并时才更新，所以在 feature 分支上，它和变更 spec 是同时修改的。
 
-这个示例里的 spec 状态是"已确认"，并且有一条变更记录，演示评审通过之后需求发生变化时怎么记录。目标版本 6.11.1 发布后，两个服务的 `REQ-0000-order-timeout-cancel/` 目录会在下一个版本的 `develop` 分支上移到 `docs/changes/archive/2026/`。
+这个示例里的 spec 状态是"已确认"，并且有一条变更记录，演示评审通过之后需求发生变化时怎么记录。目标版本 6.11.1 发布后，两个服务的 `10000-order-timeout-cancel/` 目录会在下一个版本的 `develop` 分支上移到 `docs/changes/archive/2026/`。
 
 ## `/sdd-grill` 第一轮提问节选
 
