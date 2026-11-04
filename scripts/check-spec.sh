@@ -4,8 +4,10 @@
 # Exit code 1 when any ERROR is reported; WARN lines need a human decision.
 set -uo pipefail
 
-# TODO: replace with the real requirement-id format of the in-house tracker.
-REQ_ID_PATTERN='[A-Z]+-[0-9]+'
+# 需求单号：需求系统里的纯数字（commit 里写作 %<单号>，% 和项目前缀如 %CloudCamera-18544
+# 都不属于单号本身），因此需求目录名形如 18544-add-icon。规则仓库的示例沿用 REQ-0000 这种
+# 带前缀的写法，两种都接受。
+REQ_ID_PATTERN='([0-9]+|REQ-[0-9]+)'
 VALID_STATUSES='草稿 评审中 已确认 已上线 已中止'
 
 errors=0
@@ -41,7 +43,13 @@ case "${branch}" in
 esac
 
 if [[ -z "${req_dir}" ]]; then
-  ok "not a feature branch; change-spec checks skipped (L0)"
+  case "${branch}" in
+    fix/*|develop*|dev*|release*|master|main)
+      ok "${branch} is not a feature branch; change-spec checks skipped" ;;
+    *)
+      # 分支名不符合任何约定时不能当作 L0 放过，否则改代码前写 spec 这条门禁会被静默跳过
+      warn "branch '${branch}' matches no convention; expected feature/<需求单号>-<描述>" ;;
+  esac
 else
   dir="${changes_dir}/${req_dir}"
   if [[ ! -d "${dir}" ]]; then
@@ -143,15 +151,23 @@ if [[ "${layout}" == "docs" && -d "${specs_dir}" ]]; then
   fi
 fi
 
-if [[ -d "${changes_dir}" ]]; then
-  for d in "${changes_dir}"/*/; do
-    [[ -d "${d}" ]] || continue
-    name="$(basename "${d}")"
-    [[ "${name}" == "archive" ]] && continue
+# 命名规则只约束本次新增的需求目录。存量目录按"不迁移"原则跳过：已经使用 OpenSpec 的服务
+# 里有归档前没有需求单号的目录，接入时不应被判为 ERROR。
+added_dirs="$(
+  {
+    [[ -n "${merge_base:-}" ]] && git diff --diff-filter=AR --name-only "${merge_base}" HEAD -- "${changes_dir}" 2>/dev/null
+    git diff --diff-filter=AR --name-only -- "${changes_dir}" 2>/dev/null
+    git ls-files --others --exclude-standard -- "${changes_dir}" 2>/dev/null
+  } | sed -n "s|^${changes_dir}/\([^/]*\)/.*|\1|p" | sort -u
+)"
+
+if [[ -n "${added_dirs}" ]]; then
+  while read -r name; do
+    [[ -z "${name}" || "${name}" == "archive" ]] && continue
     if ! [[ "${name}" =~ ^${REQ_ID_PATTERN}-[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
       err "${changes_dir}/${name}/: directory name must be <需求单号>-<lowercase-hyphenated-description>"
     fi
-  done
+  done <<< "${added_dirs}"
 fi
 
 echo "      ${errors} error(s), ${warns} warning(s)"
