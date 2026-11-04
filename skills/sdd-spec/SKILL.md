@@ -14,6 +14,7 @@ disable-model-invocation: true
 
 - 单服务需求写在该服务里；跨服务需求写在主服务里。
 - 目录：`<服务>/docs/changes/<需求单号>-<英文短描述>/`，短描述用小写英文和连字符，3～5 个单词。命名和目录规则以规则仓库的 `docs/spec-management.md` 为准。
+- 服务根目录有 `openspec/` 时，按 `docs/spec-management.md` 第 8 节的对应关系，把内容写到 `openspec/changes/<需求目录>/` 下的 `proposal.md`、`specs/<能力>/spec.md` 和 `design.md`。
 - 文档写在 feature 分支 `feature/<需求目录名>` 上，这个分支通常已在 `/sdd-grill` 里创建。当前不在这个分支上时，告诉用户分支名，用户同意后再切换或创建。
 
 ### 2. 确定测试接缝
@@ -23,12 +24,13 @@ disable-model-invocation: true
 - 优先用已有的接缝；接缝位置越高越好，数量越少越好。
 - Spring Boot 服务常见的接缝：HTTP 接口（`@SpringBootTest` + MockMvc）、对外暴露的 Service 接口、MQ 消息的消费入口。
 - 列出建议的接缝，每个附一句"能发现什么问题、发现不了什么问题"，请用户确认。
+- 查看涉及服务的测试基座（规则仓库 `AGENTS.md` 的服务地图）。测试基座为"无"的服务，接缝的验证方式只能是降级验证：写明用什么脚本验证、为什么没法用自动化测试。测试基座为"部分"的，优先用能单独运行的测试类。
 
-完成标准：用户确认了接缝列表。
+完成标准：用户确认了接缝列表和每个接缝的验证方式。
 
 ### 3. 写文档
 
-- 按 [templates/spec.md](templates/spec.md) 写 `spec.md`，状态填"草稿"，需求负责人填当前用户。
+- 按 [templates/spec.md](templates/spec.md) 写 `spec.md`，状态填"草稿"，需求负责人填当前用户，目标版本填 `/sdd-grill` 里确认的版本。
 - L2 需求再按 [templates/design.md](templates/design.md) 写 `design.md`。
 - 用词和相关服务的 `GLOSSARY.md` 保持一致；和已有 ADR 冲突的地方要明确写出来。
 - 用业务语言描述行为和决策，不写具体文件路径和代码片段，它们很快会过时。例外：表结构、状态机、接口字段这类用代码表达更准确的决策，可以摘录关键部分。
@@ -39,5 +41,5 @@ disable-model-invocation: true
 
 告诉用户文档写在哪里，提醒开 Draft MR 时把状态改为"评审中"，然后提示下一步：
 
-- L2：在同一个会话里运行 `/sdd-tasks`。
+- L2：优先在同一个会话里运行 `/sdd-tasks`。涉及的服务多、会话已经很长时，可以先运行 `/sdd-handoff` 生成交接文档，再开新会话拆任务。
 - L1：提交 spec，开 Draft MR 评审；评审通过后，开新会话运行 `/sdd-implement`。L1 需求如果一次会话做不完，也可以先运行 `/sdd-tasks` 拆分。

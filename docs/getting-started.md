@@ -4,27 +4,30 @@
 
 ## 1. 初始化（一次性）
 
+在你平时放所有服务的那个工作空间目录里执行：
+
 ```bash
-git clone <规则仓库地址> workspace
-cd workspace
-./scripts/bootstrap.sh
-./scripts/link-skills.sh
+git clone <规则仓库地址> sdd-standard
+./sdd-standard/scripts/bootstrap.sh
+./sdd-standard/scripts/link-skills.sh
 ```
 
-- `bootstrap.sh` 按 `repos.txt` clone 所有服务，已经存在的会跳过。
+- 规则仓库的目录名必须是 `sdd-standard`，skill 按这个名字查找规则。
+- `bootstrap.sh` 把 `repos.txt` 里的服务 clone 到与 `sdd-standard/` 并列的位置，已经存在的会跳过；然后在工作空间根目录生成 `AGENTS.md` 和 `CLAUDE.md` 两个指针文件。根目录已经有同名文件时不会覆盖，而是打印需要你手动加进去的内容。
 - `link-skills.sh` 把 `skills/sdd-*` 软链到 `~/.claude/skills` 和 `~/.agents/skills`。以后在规则仓库里 `git pull`，skill 就会同步更新。如果这两个目录里已经有同名的真实目录，脚本会跳过并提示，不会删除。
+- 工作空间根目录本身不纳入版本控制，里面的其他项目不受 SDD 规则约束。
 
-以后打开 AI 工具时，**打开 `workspace` 这个目录**，而不是单个服务目录。这样 AI 能同时看到服务地图、规则和所有服务。
+以后打开 AI 工具时，**打开工作空间根目录**，而不是单个服务目录。这样 AI 能同时看到服务地图、规则和所有服务。
 
 ## 2. 你的 AI 工具怎么接入
 
 | 工具 | 规则 | skill |
 |---|---|---|
-| Claude Code | 自动读 `CLAUDE.md`，它引用了 `AGENTS.md` | 链接后可以直接输入 `/sdd-grill` 等命令 |
-| Codex 等支持 Agent Skills 的工具 | 自动读 `AGENTS.md` | 从 `~/.agents/skills` 加载 |
-| Cursor、Copilot、国产工具等 | 大多会读 `AGENTS.md`；不读的话，在工具的规则文件里写一句"遵守工作空间根目录 AGENTS.md 的规则" | 支持情况以工具文档为准。不支持时，对 AI 说"按 `skills/sdd-grill/SKILL.md` 的步骤执行" |
+| Claude Code | 自动读工作空间根目录的 `CLAUDE.md`，它引用了 `sdd-standard/AGENTS.md` | 链接后可以直接输入 `/sdd-grill` 等命令 |
+| Codex 等支持 Agent Skills 的工具 | 读工作空间根目录的 `AGENTS.md`，再按其中的指针读 `sdd-standard/AGENTS.md` | 从 `~/.agents/skills` 加载 |
+| Cursor、Copilot、国产工具等 | 大多会读 `AGENTS.md`；不读的话，在工具的规则文件里写一句"遵守 `sdd-standard/AGENTS.md` 的规则" | 支持情况以工具文档为准。不支持时，对 AI 说"按 `sdd-standard/skills/sdd-grill/SKILL.md` 的步骤执行" |
 
-接入后可以这样检查：问 AI "这个工作空间有哪些服务？需求怎么分档？"，它应该能按 `AGENTS.md` 回答出来。
+接入后可以这样检查：问 AI "这个工作空间有哪些服务？需求怎么分档？"，它应该能按 `sdd-standard/AGENTS.md` 回答出来。
 
 ## 3. 一个需求怎么走
 
@@ -33,16 +36,18 @@ cd workspace
 ### 第一个会话：对齐需求、写文档
 
 ```
-你：/sdd-grill REQ-0000 订单 30 分钟未支付自动取消并释放库存
-AI：判断为 L2，涉及 order-service、inventory-service，建议主服务 order-service……
+你：/sdd-grill REQ-0000 目标版本 6.11.1，订单 30 分钟未支付自动取消并释放库存
+AI：判断为 L2，涉及 order-service、inventory-service，建议主服务 order-service；
+    两个服务都从 develop-v6.11.1 拉出 feature 分支……
     （几轮提问，每个问题都带推荐答案，你逐一回答）
 你：/sdd-spec
-AI：建议的测试接缝如下……（你确认后，AI 写出 spec.md 和 design.md）
+AI：建议的测试接缝如下；inventory-service 没有测试基座，库存释放接口用降级验证……
+    （你确认后，AI 写出 spec.md 和 design.md）
 你：/sdd-tasks
 AI：拆成 4 个任务，依赖关系如下……（你确认后，AI 写入两个服务的 tasks.md）
 ```
 
-这三步在同一个会话里完成，中间不要清空上下文。
+前两步必须在同一个会话里完成，中间不要清空上下文。拆任务也尽量在同一个会话里做；涉及的服务多、会话太长时，可以先运行 `/sdd-handoff`，再开新会话拆任务。
 
 ### 评审
 
@@ -54,14 +59,14 @@ AI：拆成 4 个任务，依赖关系如下……（你确认后，AI 写入两
 
 ```
 你：/sdd-implement inventory-service T1
-AI：复述任务 → 测试先行逐条实现 → 勾选任务 → 两轴审查 → 提交
+AI：复述任务 → 按 spec 声明的方式先验证再实现 → 勾选任务 → 两轴自审 → 运行 check-spec.sh → 提交
 ```
 
-按依赖顺序完成每个任务，每做完一个就开一个新会话。所有任务完成后，把 Draft MR 改为正式 MR，按"代码自查"项自查，然后请人评审。
+按依赖顺序完成每个任务，每做完一个就开一个新会话。所有任务完成后，把 Draft MR 改为正式 MR，在 MR 里列出没有被验证覆盖的部分，按"代码自查"项自查，然后请人评审。提 MR 前也可以自己在服务目录下运行一次 `../sdd-standard/scripts/check-spec.sh`。
 
 ### 上线后
 
-需求在所有服务都上线后，把主服务 spec 的状态改为"已上线"，再用 `git mv` 把各服务的变更目录移到 `docs/changes/archive/<年份>/`。可以顺带放在该服务的下一个 MR 里，但要在上线后两周内完成。完整规则见 [spec 管理规范](spec-management.md)。
+目标版本发布（`release-v<目标版本>` 上线）后，在下一个版本的开发周期内，在下一个版本的 `develop` 分支上把主服务 spec 的状态改为"已上线"，再用 `git mv` 把各服务的变更目录移到 `docs/changes/archive/<年份>/`。可以顺带放在该服务的下一个 MR 里。完整规则见 [spec 管理规范](spec-management.md)第 5 节。
 
 ### L1 和 L0
 

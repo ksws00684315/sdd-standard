@@ -1,14 +1,1 @@
-# Whitelist: only rules-repo files are tracked; service repos cloned here are ignored.
-/*
-!/.gitignore
-!/AGENTS.md
-!/CLAUDE.md
-!/GLOSSARY-MAP.md
-!/README.md
-!/repos.txt
-!/docs/
-!/scripts/
-!/skills/
-!/templates/
-
 .DS_Store

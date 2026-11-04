@@ -14,12 +14,13 @@
 | [order-service/.../design.md](order-service/docs/changes/REQ-0000-order-timeout-cancel/design.md) | `/sdd-spec` | ② 写 spec |
 | [order-service/.../tasks.md](order-service/docs/changes/REQ-0000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
 | [inventory-service/.../tasks.md](inventory-service/docs/changes/REQ-0000-order-timeout-cancel/tasks.md) | `/sdd-tasks` | ③ 拆任务 |
+| [inventory-service/.../verify/stock-release.sh](inventory-service/docs/changes/REQ-0000-order-timeout-cancel/verify/stock-release.sh) | `/sdd-implement`，T1 的降级验证脚本 | ⑤ 实现 |
 | [order-service/docs/specs/README.md](order-service/docs/specs/README.md) | 服务接入时创建，之后按需更新 | 长期维护 |
 | [order-service/docs/specs/order-lifecycle.md](order-service/docs/specs/order-lifecycle.md) | `/sdd-implement`，随 T3、T4 的代码一起更新 | ⑤ 实现 |
 
 `order-lifecycle.md` 展示的是 T3、T4 合并之后的样子：现状规格只在代码合并时才更新，所以在 feature 分支上，它和变更 spec 是同时修改的。
 
-这个示例里的 spec 状态是"已确认"，并且有一条变更记录，演示评审通过之后需求发生变化时怎么记录。上线后，两个服务的 `REQ-0000-order-timeout-cancel/` 目录都会移到 `docs/changes/archive/2026/`。
+这个示例里的 spec 状态是"已确认"，并且有一条变更记录，演示评审通过之后需求发生变化时怎么记录。目标版本 6.11.1 发布后，两个服务的 `REQ-0000-order-timeout-cancel/` 目录会在下一个版本的 `develop` 分支上移到 `docs/changes/archive/2026/`。
 
 ## `/sdd-grill` 第一轮提问节选
 
@@ -46,7 +47,9 @@
 ## 值得注意的地方
 
 - **"不做"一节**：明确排除了取消通知和支付对账，防止 AI 顺手实现。
-- **测试接缝**：三个接缝各自写明了能发现和发现不了什么，reviewer 能判断测试覆盖是否够用。
+- **测试接缝**：三个接缝各自写明了验证方式、能发现和发现不了什么，reviewer 能判断覆盖是否够用。
+- **降级验证**：inventory-service 没有可运行的测试，spec 里事先声明了库存释放接口用 `verify/stock-release.sh` 验证，并写明了它发现不了"并发重复请求"。
+- **目标版本**：spec 头部写明 6.11.1，design.md 的服务影响矩阵写明两个服务的目标分支都是 `develop-v6.11.1`。
 - **任务按行为切分**：每个任务交付一段可以单独验证的行为，而不是"先写 DAO 再写 Service"。
 - **跨服务依赖**：order-service 的 T4 被 inventory-service 的 T1 阻塞，和 design.md 里"先发库存服务"的上线顺序一致。
 - **预重构排在最前**：T2 先把订单状态变更收拢到一处，后面的 T3 才好实现。

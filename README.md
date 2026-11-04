@@ -2,15 +2,23 @@
 
 SDD（Spec-Driven Development，规格驱动开发）：先把"要做什么"写成 spec 并评审，再让人或 AI 按 spec 实现。
 
-这个仓库就是大家平时打开的 AI 编码工作空间。它只管理规范、AI 规则、skill、模板和脚本，不存放真实需求的 spec（`docs/example/` 只用于演示）。各微服务仍然是独立的 git 仓库，clone 在本目录下，被 `.gitignore` 忽略；所有 spec 都放在对应的服务仓库里。
+本仓库只管理规范、AI 规则、skill、模板和脚本，不存放真实需求的 spec（`docs/example/` 只用于演示）。它放在 AI 编码的工作空间里，和各微服务仓库并列；所有 spec 都放在对应的服务仓库里。
+
+```
+<工作空间>/                不纳入版本控制，AI 工具在这里打开
+├── AGENTS.md / CLAUDE.md  指向本仓库的规则（bootstrap.sh 生成）
+├── sdd-standard/          本仓库
+├── order-service/         各服务的独立 git 仓库
+└── inventory-service/
+```
 
 ## 快速开始
 
 ```bash
-git clone <本仓库地址> workspace
-cd workspace
-./scripts/bootstrap.sh     # 按 repos.txt clone 所有服务
-./scripts/link-skills.sh   # 把 sdd skill 链接到个人目录
+cd <工作空间>
+git clone <本仓库地址> sdd-standard
+./sdd-standard/scripts/bootstrap.sh    # clone repos.txt 里的服务，生成工作空间指针文件
+./sdd-standard/scripts/link-skills.sh  # 把 sdd skill 链接到个人目录
 ```
 
 然后阅读[上手指南](docs/getting-started.md)。
@@ -38,7 +46,8 @@ cd workspace
 | `docs/` | 规范、指南、示例、ADR |
 | `skills/` | 12 个 `sdd-*` skill：4 个阶段、5 个方法、3 个工具，分类见[规范第 9 节](docs/standard.md#9-ai-工具) |
 | `templates/service/` | 复制到服务仓库的模板 |
-| `scripts/` | `bootstrap.sh`（clone 服务）、`link-skills.sh`（链接 skill） |
+| `templates/workspace/` | 工作空间根目录的指针文件 |
+| `scripts/` | `bootstrap.sh`（clone 服务、生成指针文件）、`link-skills.sh`（链接 skill）、`check-spec.sh`（提 MR 前的 spec 校验） |
 
 ## 致谢
 

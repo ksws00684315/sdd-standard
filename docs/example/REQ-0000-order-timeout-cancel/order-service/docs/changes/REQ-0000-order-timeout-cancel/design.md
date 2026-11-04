@@ -2,10 +2,10 @@
 
 ## 服务影响矩阵
 
-| 服务 | 改动概述 | 接口变化 | 数据变化 |
-|---|---|---|---|
-| order-service | 新增超时扫描任务；取消后登记库存释放待办，由后台重试调用库存服务 | 无对外接口变化；新增对库存释放接口的调用 | `t_order` 加索引；新建 `t_stock_release_todo` |
-| inventory-service | 新增库存释放接口，按订单号保证幂等 | 新增 `POST /stock/release` | `t_stock_lock` 加 `released_at` 字段 |
+| 服务 | 目标分支 | 改动概述 | 接口变化 | 数据变化 |
+|---|---|---|---|---|
+| order-service | develop-v6.11.1 | 新增超时扫描任务；取消后登记库存释放待办，由后台重试调用库存服务 | 无对外接口变化；新增对库存释放接口的调用 | `t_order` 加索引；新建 `t_stock_release_todo` |
+| inventory-service | develop-v6.11.1 | 新增库存释放接口，按订单号保证幂等 | 新增 `POST /stock/release` | `t_stock_lock` 加 `released_at` 字段 |
 
 ## 接口变更
 
