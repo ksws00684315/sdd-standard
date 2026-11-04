@@ -5,9 +5,8 @@
 set -uo pipefail
 
 # 需求单号：需求系统里的纯数字（commit 里写作 %<单号>，% 和项目前缀如 %CloudCamera-18544
-# 都不属于单号本身），因此需求目录名形如 18544-add-icon。规则仓库的示例沿用 REQ-0000 这种
-# 带前缀的写法，两种都接受。
-REQ_ID_PATTERN='([0-9]+|REQ-[0-9]+)'
+# 都不属于单号本身），因此需求目录名形如 18544-add-icon。
+REQ_ID_PATTERN='[0-9]+'
 VALID_STATUSES='草稿 评审中 已确认 已上线 已中止'
 
 errors=0
@@ -44,7 +43,7 @@ esac
 
 if [[ -z "${req_dir}" ]]; then
   case "${branch}" in
-    fix/*|develop*|dev*|release*|master|main)
+    fix/*|develop*|dev|dev-*|release*|master|main)
       ok "${branch} is not a feature branch; change-spec checks skipped" ;;
     *)
       # 分支名不符合任何约定时不能当作 L0 放过，否则改代码前写 spec 这条门禁会被静默跳过
@@ -112,7 +111,7 @@ elif [[ -n "${version}" ]]; then
 fi
 
 if [[ -z "${base_ref}" ]]; then
-  warn "base branch unknown (target version '${version:-none}'); pass --base <ref> to enable diff checks"
+  warn "base branch unknown (target version '${version:-none}'); diff checks skipped and naming check only covers uncommitted changes; pass --base <ref>"
 else
   merge_base="$(git merge-base "${base_ref}" HEAD 2>/dev/null || true)"
   if [[ -z "${merge_base}" ]]; then
@@ -155,8 +154,11 @@ fi
 # 里有归档前没有需求单号的目录，接入时不应被判为 ERROR。
 added_dirs="$(
   {
+    # 已提交的改动：和分叉点比较
     [[ -n "${merge_base:-}" ]] && git diff --diff-filter=AR --name-only "${merge_base}" HEAD -- "${changes_dir}" 2>/dev/null
-    git diff --diff-filter=AR --name-only -- "${changes_dir}" 2>/dev/null
+    # 已暂存 + 未暂存的改动：和 HEAD 比较；提 MR 前常见的状态是"git add 了但还没 commit"
+    git rev-parse --verify -q HEAD >/dev/null && git diff --diff-filter=AR --name-only HEAD -- "${changes_dir}" 2>/dev/null
+    # 未跟踪的改动
     git ls-files --others --exclude-standard -- "${changes_dir}" 2>/dev/null
   } | sed -n "s|^${changes_dir}/\([^/]*\)/.*|\1|p" | sort -u
 )"
