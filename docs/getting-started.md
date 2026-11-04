@@ -31,12 +31,12 @@ git clone <规则仓库地址> sdd-standard
 
 ## 3. 一个需求怎么走
 
-以跨服务需求（L2）为例，完整的文档见[示例需求](example/REQ-0000-order-timeout-cancel/README.md)。
+以跨服务需求（L2）为例，完整的文档见[示例需求](example/10000-order-timeout-cancel/README.md)。
 
 ### 第一个会话：对齐需求、写文档
 
 ```
-你：/sdd-grill REQ-0000 目标版本 6.11.1，订单 30 分钟未支付自动取消并释放库存
+你：/sdd-grill 10000 目标版本 6.11.1，订单 30 分钟未支付自动取消并释放库存
 AI：判断为 L2，涉及 order-service、inventory-service，建议主服务 order-service；
     两个服务都从 develop-v6.11.1 拉出 feature 分支……
     （几轮提问，每个问题都带推荐答案，你逐一回答）
@@ -51,7 +51,7 @@ AI：拆成 4 个任务，依赖关系如下……（你确认后，AI 写入两
 
 ### 评审
 
-1. 在两个服务的 `feature/REQ-0000-order-timeout-cancel` 分支上提交文档。
+1. 在两个服务的 `feature/10000-order-timeout-cancel` 分支上提交文档。
 2. 各开一个 Draft MR，把主服务 spec 的状态改为"评审中"，请 reviewer 按 MR 模板里的"Spec 评审"检查项评审。两个 MR 都通过后，把状态改为"已确认"。
 3. 评审意见可以在新会话里处理：让 AI 读 spec 并按意见修改，改了 spec 的地方要同步改 tasks。
 

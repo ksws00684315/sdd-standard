@@ -24,7 +24,7 @@
     ├── adr/                             本服务内部的架构决策（需要时创建）
     │   └── 0001-<描述>.md
     └── changes/                         变更 spec
-        ├── REQ-12345-order-timeout-cancel/    进行中的需求
+        ├── 10000-order-timeout-cancel/    进行中的需求
         │   ├── spec.md                  主服务、单服务需求才有
         │   ├── design.md                L2 主服务才有
         │   ├── tasks.md                 L2，或 L1 拆了任务时
@@ -32,7 +32,7 @@
         │   └── questionnaire-<主题>.md  需要时
         └── archive/
             └── 2026/                    按目标版本发布的年份分组
-                └── REQ-10001-.../
+                └── 10001-.../
 ```
 
 SDD 只使用 `docs/` 下的这三个目录。服务原有的其他文档（部署说明等）可以继续放在 `docs/` 的其他子目录里，但不能和这三个目录同名。
@@ -41,15 +41,15 @@ SDD 只使用 `docs/` 下的这三个目录。服务原有的其他文档（部�
 
 | 对象 | 规则 | 例子 |
 |---|---|---|
-| 需求目录 | `<需求单号>-<英文短描述>`，短描述用小写英文和连字符，3～5 个单词 | `REQ-12345-order-timeout-cancel` |
-| feature 分支 | `feature/` 加上需求目录名，从 `develop-v<目标版本>` 拉出，各服务相同 | `feature/REQ-12345-order-timeout-cancel` |
+| 需求目录 | `<需求单号>-<英文短描述>`，短描述用小写英文和连字符，3～5 个单词 | `10000-order-timeout-cancel` |
+| feature 分支 | `feature/` 加上需求目录名，从 `develop-v<目标版本>` 拉出，各服务相同 | `feature/10000-order-timeout-cancel` |
 | 现状规格文件 | `<能力英文名>.md`，小写英文和连字符 | `order-lifecycle.md` |
 | 问卷 | `questionnaire-<英文主题>.md`，放在需求目录里 | `questionnaire-refund-rules.md` |
 | ADR | `NNNN-<英文短描述>.md`，编号在所在目录递增 | `0002-order-events-via-mq.md` |
 
 - 文件名和目录名一律用英文；文件里的标题和正文用中文。
 - 一个需求在一个服务里只有一个目录。不同需求不共用目录。
-- 需求单号是需求系统里的纯数字，commit 里写作 `%<单号>`（`%` 和项目前缀不属于单号），所以真实的需求目录名形如 `18544-add-icon`。本仓库示例沿用 `REQ-0000` 这种带前缀的写法，两种都符合命名规则。
+- 需求单号是需求系统里的纯数字，commit 里写作 `%<单号>`（`%` 和项目前缀不属于单号），所以需求目录名形如 `18544-add-icon`。本仓库示例统一用 `10000-order-timeout-cancel`。
 - 需求单号保证需求目录名在全团队唯一，所以"服务名 + 需求目录名"可以唯一定位一份变更 spec。
 
 ## 3. 变更 spec
@@ -102,7 +102,7 @@ SDD 只使用 `docs/` 下的这三个目录。服务原有的其他文档（部�
 
 ```
 <服务名>:<需求目录名>
-例：order-service:REQ-12345-order-timeout-cancel
+例：order-service:10000-order-timeout-cancel
 ```
 
 可以另外附上 GitLab 链接方便点击，但以"服务名 + 需求目录名"为准。这样不论 spec 在 feature 分支、版本分支，还是已经移到归档目录，都能按目录名找到。
@@ -200,8 +200,8 @@ SDD 只使用 `docs/` 下的这三个目录。服务原有的其他文档（部�
 
 **`openspec` 命令不可用时**：没装 CLI 的机器上，按下面的等价操作手动归档，随 MR 一起提交。
 
-1. `git mv openspec/changes/<需求目录> openspec/changes/archive/<YYYY-MM-DD>-<需求目录>`
-2. 把这个 change 在 `specs/<能力>/spec.md` 里的 Requirement 和 Scenario 合入 `openspec/specs/<能力>/spec.md`；新能力则新建 `<能力>/spec.md`。
+1. **先合入 delta**：读 `openspec/changes/<需求目录>/specs/<能力>/spec.md`，按 OpenSpec 的 delta 语义合入 `openspec/specs/<能力>/spec.md`——`ADDED` 追加新 Requirement，`MODIFIED` 用 delta 里的全文替换同名 Requirement，`REMOVED` 删除对应 Requirement，`RENAMED` 改标题并保留内容；新能力则新建 `<能力>/spec.md`。
+2. **再移动目录**：`git mv openspec/changes/<需求目录> openspec/changes/archive/<YYYY-MM-DD>-<需求目录>`。先合入再移动，这样 delta 还在原路径，不需要从归档目录回读。
 3. 目标版本发布后，把归档目录里 `proposal.md` 的状态改为"已上线"。
 
 接入时的存量 change 目录（例如归档前没有需求单号的 change id）不要求改名：`check-spec.sh` 只校验本次分支新增的目录，存量目录按第 6 节"不迁移"处理。

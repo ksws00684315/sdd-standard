@@ -9,7 +9,7 @@
 接入前必须先确认服务的测试基座，并做到**至少能编译、并能单独运行一个测试类**。做不到这一点，AI 的测试先行和两轴自审都没法工作。
 
 1. 确认 `mvn compile` 能通过。
-2. 检查 `maven-surefire-plugin` 有没有配置 `<skip>true</skip>`。有的话去掉，或者改成可以用 `-DskipTests=false` 打开。
+2. 检查 `maven-surefire-plugin` 有没有配置 `<skip>true</skip>`。有的话去掉，或改成 `<skip>${skipTests}</skip>` 这类能被命令行覆盖的形式——写死在插件配置里的 `<skip>true</skip>` 无法用 `-Dtest` 或 `-DskipTests=false` 打开。
 3. 确认 `mvn test -Dtest=<任意一个测试类>` 能运行。服务里一个测试类都没有的，跳过这一步。
 4. 按结果确定测试基座，写进规则仓库 `AGENTS.md` 的服务地图和服务自己的 `AGENTS.md`：
 

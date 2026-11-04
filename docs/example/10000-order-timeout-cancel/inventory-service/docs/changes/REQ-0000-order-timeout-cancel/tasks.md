@@ -1,6 +1,6 @@
-# REQ-0000 inventory-service 任务
+# 10000 inventory-service 任务
 
-- 主 spec：`order-service:REQ-0000-order-timeout-cancel`（真实项目中可以再附 GitLab 文件链接）
+- 主 spec：`order-service:10000-order-timeout-cancel`（真实项目中可以再附 GitLab 文件链接）
 
 ## T1 库存释放接口，按订单号幂等
 
