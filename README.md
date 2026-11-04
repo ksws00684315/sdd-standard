@@ -31,7 +31,7 @@ git clone <本仓库地址> sdd-standard
 | [团队 SDD 规范](docs/standard.md) | 所有人 | 规范正文：spec 放哪、怎么分档、每个阶段做什么、怎么评审 |
 | [服务仓库 spec 管理规范](docs/spec-management.md) | 所有人 | 服务仓库里 spec 的目录、命名、状态、职责、更新和归档规则 |
 | [上手指南](docs/getting-started.md) | 新成员 | 初始化、各 AI 工具怎么接入、一个需求从头到尾怎么走 |
-| [完整示例](docs/example/REQ-0000-order-timeout-cancel/README.md) | 所有人 | 一个跨服务需求的全部文档 |
+| [完整示例](docs/example/10000-order-timeout-cancel/README.md) | 所有人 | 一个跨服务需求的全部文档 |
 | [服务接入清单](docs/service-onboarding.md) | 服务负责人 | 一个已有服务接入规范要做的事 |
 | [编码规范](docs/coding-standards.md) | 所有人 | 两轴审查中 Standards 方向的依据 |
 | [试点与推广计划](docs/rollout-plan.md) | 负责人、架构师 | 试点范围、评估指标、推广节奏 |
