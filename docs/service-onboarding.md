@@ -29,14 +29,14 @@
 
 ## 在服务仓库
 
-- [ ] 复制 `templates/service/AGENTS.md` 到仓库根目录，填写职责、模块结构、本地运行与测试命令、测试基座、编码约定。仓库已有 `AGENTS.md` 的，把模板里的内容合并进去，不要覆盖原有约定
+- [ ] 复制 `templates/service/AGENTS.md` 到仓库根目录，填写职责、模块结构、本地运行与测试命令、测试基座、编码约定。仓库已有 `AGENTS.md` 的，把模板里的内容合并进去，不要覆盖原有约定；已有代码图或索引工具生成的托管块（如 `<!-- graft:start -->`）原样保留，否则工具重新生成时会冲掉手写内容
 - [ ] 复制 `templates/service/CLAUDE.md` 到仓库根目录；已有 `CLAUDE.md` 的，确认它引用了 `AGENTS.md`
 - [ ] 复制 `templates/service/merge_request.md` 到 `.gitlab/merge_request_templates/Default.md`
 - [ ] 复制 `templates/service/specs-index.md` 到 `docs/specs/README.md`，作为现状规格的索引，暂时可以没有条目
 - [ ] 创建 `docs/changes/archive/` 目录（可以放一个 `.gitkeep`）；按年份的子目录在第一次归档时再创建
 - [ ] 确认 `docs/` 下原有的目录没有和 `specs`、`changes`、`adr` 重名
 - [ ] 已经使用 OpenSpec 的服务，跳过 `docs/specs/` 和 `docs/changes/` 两项，保留 `openspec/` 结构（见 [spec 管理规范](spec-management.md)第 8 节）
-- [ ] 在服务目录下运行 `../sdd-standard/scripts/check-spec.sh`，确认能正常输出结果
+- [ ] 在服务目录下运行 `../sdd-standard/scripts/check-spec.sh`，确认能正常输出结果。已有 `docs/changes/` 或 `openspec/changes/` 存量目录的不受影响：命名检查只看本次分支新增的目录
 
 ## 按需补充（不阻塞接入）
 
