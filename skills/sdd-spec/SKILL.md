@@ -1,6 +1,6 @@
 ---
 name: sdd-spec
-description: SDD 第 2 步：把本次会话里对齐的需求写成 spec.md，L2 需求再写 design.md。
+description: SDD 第 2 步：把本次会话里对齐的需求写成 spec.md（FR 编号），L3 跨服务和 L4 再写治理仓全局 spec 与 design.md。
 disable-model-invocation: true
 ---
 
@@ -8,13 +8,16 @@ disable-model-invocation: true
 
 根据当前会话已经达成的共识写 spec，**不再重新提问**：需要的信息应该已经在 `/sdd-grill` 里问清楚了。如果发现还有关键决策没定，把它们列出来，请用户先做决定。
 
+**模式分流**：目标服务仓已接入研发云数字员工（仓内有 `docs/sdd-state.yaml`，或用户说明已接入）时为**平台仓**——服务仓的 spec.md、design.md、tasks.md 由平台 G1/G2/G3 生成，本 skill 不代写；你只负责跨服务需求的治理仓全局 spec（见第 1 步），并把会话共识整理成平台 G1 的输入。以下步骤适用于未接入平台的服务仓。
+
 ## 步骤
 
 ### 1. 确认位置和分支
 
-- 单服务需求写在该服务里；跨服务需求写在主服务里。
-- 目录：`<服务>/docs/changes/<需求单号>-<英文短描述>/`，短描述用小写英文和连字符，3～5 个单词。命名和目录规则以规则仓库的 `docs/spec-management.md` 为准。
-- 服务根目录有 `openspec/` 时，按 `docs/spec-management.md` 第 8 节的对应关系，把内容写到 `openspec/changes/<需求目录>/` 下的 `proposal.md`、`specs/<能力>/spec.md` 和 `design.md`。
+- 单服务需求（L2/L3/L4）写在该服务里：`<服务>/docs/changes/<需求单号>-<英文短描述>/spec.md`。
+- 跨服务需求（L3/L4）：治理仓写全局 `spec.md`（按规则仓库 `templates/governance/changes-spec.md` 的骨架），每个涉及的服务写本服务的 `spec.md`（只含本服务的 FR 条目），全局与各服务不互相复制内容。
+- 短描述用小写英文和连字符，3～5 个单词。命名和目录规则以规则仓库的 `docs/spec-management.md` 为准。
+- 服务根目录有 `openspec/` 时，告诉用户该服务按 `docs/spec-management.md` 第 8 节的迁移指南先迁到 `docs/` 结构，再继续；存量未迁移的进行中需求按第 8 节的存量对应关系写到 `openspec/changes/` 下。
 - 文档写在 feature 分支 `feature/<需求目录名>` 上，这个分支通常已在 `/sdd-grill` 里创建。当前不在这个分支上时，告诉用户分支名，用户同意后再切换或创建。
 
 ### 2. 确定测试接缝
@@ -28,18 +31,25 @@ disable-model-invocation: true
 
 完成标准：用户确认了接缝列表和每个接缝的验证方式。
 
-### 3. 写文档
+### 3. 分配编号
 
-- 按 [templates/spec.md](templates/spec.md) 写 `spec.md`，状态填"草稿"，需求负责人填当前用户，目标版本填 `/sdd-grill` 里确认的版本。
-- L2 需求再按 [templates/design.md](templates/design.md) 写 `design.md`。
+- **FR 编号**：本次新增或修改的每条需求分配 `FR-xxx`。改动的条目沿用现状规格里的既有编号；新增条目接续所在能力文件的最大序号；涉及的能力还没有现状规格时，先给该能力分配 Spec ID（`SPEC-<域>-<NNN>`，三位序号，接续本域最大序号），再从 FR-001 起编。
+- **Spec ID 和域**：域见治理仓 `domains.yaml`（等于服务名去 service 后缀的大写）。新建能力文件要在治理仓主 `spec.md` 的能力索引里登记。
+- **FEAT 对应**：每条 FR 至少归属一个 FEAT（`/sdd-grill` 里拆分的），落库时进 FEAT 映射表。
+
+### 4. 写文档
+
+- 服务仓的 `spec.md` 按 [templates/spec.md](templates/spec.md) 写，状态填"草稿"，需求负责人填当前用户，目标版本填 `/sdd-grill` 里确认的版本，头部写 FEAT 清单。
+- L4 需求再按 [templates/design.md](templates/design.md) 写 `design.md`（跨服务写在治理仓，单服务写在服务仓）。
+- 跨服务需求先写治理仓全局 spec（FEAT 分配、范围、跨服务契约变更），再写各服务的 `spec.md`。
 - 用词和相关服务的 `GLOSSARY.md` 保持一致；和已有 ADR 冲突的地方要明确写出来。
 - 用业务语言描述行为和决策，不写具体文件路径和代码片段，它们很快会过时。例外：表结构、状态机、接口字段这类用代码表达更准确的决策，可以摘录关键部分。
 
-完成标准：每条需求都有编号，并且能写成测试；"不做"一节有内容；"待确认问题"为空。
+完成标准：每条需求都有 FR 编号，并且能写成测试；"不做"一节有内容；"待确认问题"为空。
 
-### 4. 结束
+### 5. 结束
 
-告诉用户文档写在哪里，提醒开 Draft MR 时把状态改为"评审中"，然后提示下一步：
+告诉用户文档写在哪里，提醒开 Draft MR 时把状态改为"评审中"（跨服务需求在治理仓和各服务仓分别开 MR），然后提示下一步：
 
-- L2：优先在同一个会话里运行 `/sdd-tasks`。涉及的服务多、会话已经很长时，可以先运行 `/sdd-handoff` 生成交接文档，再开新会话拆任务。
-- L1：提交 spec，开 Draft MR 评审；评审通过后，开新会话运行 `/sdd-implement`。L1 需求如果一次会话做不完，也可以先运行 `/sdd-tasks` 拆分。
+- L3、L4：优先在同一个会话里运行 `/sdd-tasks`。涉及的服务多、会话已经很长时，可以先运行 `/sdd-handoff` 生成交接文档，再开新会话拆任务。
+- L2：提交 spec 和 tasks，开 Draft MR 评审；评审通过后，开新会话运行 `/sdd-implement`。L2 需求任务少时以整个 spec 为一次实现的范围。

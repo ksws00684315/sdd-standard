@@ -1,6 +1,6 @@
 ---
 name: sdd-implement
-description: SDD 第 4 步：在新会话里实现一个任务（L1 可以是整个 spec），测试先行，完成后两轴自审并提交。
+description: SDD 第 4 步：在新会话里实现一个任务（L2 可以是整个 spec），测试先行，完成后两轴自审并提交。
 disable-model-invocation: true
 ---
 
@@ -8,32 +8,34 @@ disable-model-invocation: true
 
 一次只实现**一个任务**，每个任务开一个新会话。spec 和任务描述就是全部输入，不依赖之前会话的记忆。
 
-规则仓库是工作空间里和各服务仓库并列的 `sdd-standard/` 目录；如果当前只打开了某个服务仓库，规则仓库在 `../sdd-standard/`。服务根目录有 `openspec/` 时，文件位置按规则仓库 `docs/spec-management.md` 第 8 节的对应关系查找。
+**模式分流**：平台仓（已接入研发云数字员工）的实现由平台 G4 执行——每 Task 一个 commit、单测报告、Code MR 都由 agent 承担，本 skill 不代做；它用于未接入平台的服务仓、L1 微调，以及用户明确要求人工实现的场合。
+
+规则仓库是工作空间里和各服务仓库并列的 `sdd-standard/` 目录；如果当前只打开了某个服务仓库，规则仓库在 `../sdd-standard/`。服务根目录有 `openspec/` 时，按规则仓库 `docs/spec-management.md` 第 8 节的存量对应关系查找；未迁移的存量需求继续在 `openspec/changes/` 下执行。
 
 ## 步骤
 
 ### 1. 读输入
 
-- 用户指定服务和任务编号，例如 `order-service T2`；没指定就问。L1 需求没有 `tasks.md` 时，以 spec 的全部需求作为本次范围。
+- 用户指定服务和任务编号，例如 `order-service T2`；没指定就问。L2 需求没有 `tasks.md` 或任务只有一条时，以 spec 的全部需求作为本次范围。
 - 读该需求的 `spec.md`、`design.md`（如果有）、本服务的 `tasks.md`，以及本服务的 `AGENTS.md` 和 `GLOSSARY.md`。
-- 检查 spec 状态：必须是"已确认"；是"草稿"或"评审中"时，告诉用户 spec 还没评审通过并停下。实现进度记录在各服务的 `tasks.md` 里，spec 的状态在实现期间保持不变。
-- 在参与服务实现时，spec 在主服务仓库里。主服务目录正处于同名 feature 分支时直接读；不在时用 `git -C <主服务目录> show <分支名>:<文件路径>` 读取，主服务目录当前的分支保持不动。
+- 检查 spec 状态：必须是"已确认"；是"草稿"或"评审中"时，告诉用户 spec 还没评审通过并停下。跨服务需求的状态在治理仓的全局 `spec.md` 里（经 `sdd/` 或 `../sdd-governance/` 读取，以同名 feature 分支为准）；单服务需求的状态在本服务的 `spec.md` 里。实现进度记录在各服务的 `tasks.md` 里，spec 的状态在实现期间保持不变。
+- 在参与服务实现时，全局 spec 和 design 在治理仓里。治理仓目录正处于同名 feature 分支时直接读；不在时用 `git -C ../sdd-governance show <分支名>:<文件路径>` 读取，治理仓当前的分支保持不动。
 - 检查阻塞依赖：阻塞本任务的任务还没完成时，告诉用户并停下。
-- 确认当前在 `feature/<需求目录名>` 分支上，并记下本服务的目标分支：一般是 `develop-v<目标版本>`，`design.md` 的服务影响矩阵另有写明的，以矩阵为准。
+- 确认当前在 `feature/<需求目录名>` 分支上，并记下本服务的目标分支：一般是 `develop-v<目标版本>`，治理仓 `design.md` 的服务影响矩阵另有写明的，以矩阵为准。
 - 查看本服务的测试基座（规则仓库 `AGENTS.md` 的服务地图，或本服务 `AGENTS.md`），以及 spec"测试接缝"表里本任务相关接缝的验证方式。
 
-开始前，用一句话复述本任务要交付的行为、覆盖的需求编号和验证方式。
+开始前，用一句话复述本任务要交付的行为、覆盖的 FR 编号和验证方式。
 
 ### 2. 测试先行，一次一个切片
 
-调用 Skill 工具运行 `sdd-tdd`，在 spec 里确认过的测试接缝上，按 red → green 循环实现，直到本任务覆盖的每条验收条件都已验证。spec 为这个接缝声明了降级验证的，按 `sdd-tdd` 的降级档执行。
+调用 Skill 工具运行 `sdd-tdd`，在 spec 里确认过的测试接缝上，按 red → green 循环实现，直到本任务覆盖的每条验收条件都已验证。测试代码以 `[FR-xxx]` 注解标注关联的条目。spec 为这个接缝声明了降级验证的，按 `sdd-tdd` 的降级档执行。
 
 ### 3. 遇到 spec 的问题
 
 实现中发现 spec 有错、有遗漏，或者必须偏离 spec 才能完成：停下来，告诉用户问题和建议的 spec 修改。spec 已经是"已确认"状态，所以按规则仓库 `docs/spec-management.md` 第 3.4 节处理：
 
 1. 用户确认修改方案后，修改 `spec.md`（或 `design.md`），同步调整受影响的 `tasks.md`，并在 `spec.md` 的"变更记录"里追加一行。
-2. spec 在主服务仓库时（当前在参与服务实现），这次修改要提交到主服务的 feature 分支上。告诉用户需要在主服务目录里提交；主服务目录不在该分支上时，请用户自己处理，或者用户同意后由你切换。
+2. 全局 spec 在治理仓时（当前在参与服务实现），这次修改要提交到治理仓的 feature 分支上。告诉用户需要在治理仓目录里提交；治理仓不在该分支上时，请用户自己处理，或者用户同意后由你切换。
 3. 提醒用户请评审人重新确认这部分修改。
 
 修改完成后再继续实现。
@@ -41,8 +43,8 @@ disable-model-invocation: true
 ### 4. 收尾
 
 1. 有 `tasks.md` 时，勾选本任务。
-2. 业务行为有变化时，更新本服务 `docs/specs/` 下对应能力的现状规格，并在它的"变更记录"里追加一行（需求单号和一句话说明）。这个能力还没有现状规格时，先按规则仓库的 `templates/service/capability-spec.md` 补写，并登记到 `docs/specs/README.md`。具体规则见规则仓库的 `docs/spec-management.md` 第 4 节。
-3. 接口有变化时，提醒用户同步到接口文档平台。
+2. 业务行为有变化时，更新本服务对应 Spec 的现状规格（spec.md）：FR 条目落编号（新增分配新号、修改沿用原号），变更历史追加一行（work_item_id 和一句话说明），"当前 item"段清空。FR 的新增、修改要同步治理仓主 `spec.md` 的 FEAT 映射表。这个能力还没有现状规格时，先按规则仓库的 `templates/service/spec-template.md` 补写（分配 Spec ID），并登记到 `docs/specs/README.md` 和治理仓能力索引。具体规则见规则仓库的 `docs/spec-management.md` 第 4 节。
+3. 接口有变化时，更新 `docs/api/` 的 OpenAPI，并提醒用户同步接口文档平台。
 4. 调用 Skill 工具运行 `sdd-review`，基准点用 `git merge-base origin/<目标分支> HEAD`。按审查结果修改。
 5. 按本服务的测试基座做最终验证：
 
@@ -53,7 +55,7 @@ disable-model-invocation: true
    | 无 | spec 声明的降级验证通过，受影响模块编译通过 |
 
 6. 在服务目录下运行 `../sdd-standard/scripts/check-spec.sh`，处理报错；对提醒，判断是否需要修改，并告诉用户结论。
-7. 提交到当前分支。commit 沿用团队现有格式（见规则仓库 `docs/standard.md` 第 8 节），带上需求单号和改动类型，说明可以用中文。
-8. 告诉用户本任务没有被验证覆盖的部分，提 MR 时要列在 MR 里。
+7. 提交到当前分支。commit 第一行为 `%<需求单号> <type>(<scope>): <说明>`，半角冒号（见规则仓库 `docs/standard.md` 第 10 节），带上需求单号和改动类型，说明可以用中文；平台仓由 hooks 强制补 `Spec-Id:`/`Task-Id:` trailer。
+8. 告诉用户本任务没有被验证覆盖的部分，提 MR 时要填进 MR 模板的"AC 验证清单"和"没有被验证覆盖的部分"。
 
 完成标准：第 5 步的最终验证通过；两轴自审的问题已经处理，或已向用户说明不处理的理由；`check-spec.sh` 没有报错；代码已提交；没有覆盖的部分已告诉用户。

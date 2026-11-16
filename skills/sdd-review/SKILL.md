@@ -27,12 +27,14 @@ description: 两轴代码审查：对比基准点以来的改动，分别检查�
 按顺序找：
 
 1. 用户给的路径
-2. 分支名或 commit 里的需求单号对应的 `docs/changes/<需求单号>-*/`；不在那里时，查 `docs/changes/archive/*/`
-3. 参与服务的 `tasks.md` 里以 `<主服务名>:<需求目录名>` 引用的主服务 spec，在该服务的 `docs/changes/` 或 `docs/changes/archive/*/` 下按目录名查找
+2. 分支名或 commit 里的 spec_id（`SPEC-<域>-<NNN>`）对应的 `docs/specs/<spec_id>/spec.md`（平台布局）
+3. 分支名或 commit 里的需求单号对应的 `docs/changes/<需求单号>-*/`（未接入仓旧布局）；不在那里时，查 `docs/changes/archive/*/`
+4. 本服务 `tasks.md` 里以 `governance:<工作项ID或需求目录名>` 引用的治理仓全局 spec（治理仓 `changes/` 或 `changes/archive/*/` 下按标识查找）
+5. 迁移期存量需求按 `<主服务名>:<需求目录名>` 引用的主服务 spec，在该服务的 `docs/changes/` 或 `docs/changes/archive/*/` 下按目录名查找
 
-服务根目录有 `openspec/` 时，按规则仓库 `docs/spec-management.md` 第 8 节的对应关系，在 `openspec/changes/` 和 `openspec/changes/archive/` 下查找。
+服务根目录有 `openspec/` 时，按规则仓库 `docs/spec-management.md` 第 8 节的存量对应关系，在 `openspec/changes/` 和 `openspec/changes/archive/` 下查找。
 
-都找不到就问用户。用户确认没有 spec（L0 改动）时，跳过 Spec 方向，并在报告里注明。
+都找不到就问用户。用户确认没有 spec（L1 改动）时，跳过 Spec 方向，并在报告里注明。
 
 ### 3. 找编码规范
 
@@ -65,7 +67,7 @@ description: 两轴代码审查：对比基准点以来的改动，分别检查�
 
 **Spec 方向**，输入：差异命令、提交列表、spec 路径（`spec.md`、`design.md`、相关的 `tasks.md`）。要求：
 
-> 报告：(a) spec 要求了、但缺失或只做了一部分的需求；(b) spec 没要求、却出现在改动里的行为（范围蔓延）；(c) 看起来实现了、但实现方式不对的需求；(d) 业务行为变了、但 `docs/specs/` 没有同步更新或没有追加变更记录的地方；(e) spec"测试接缝"表声明的验证方式没有落实的地方（声明了自动化测试却没有测试，声明了降级验证却没有可执行的验证脚本）。每条都引用对应的 spec 原文或需求编号。400 字以内。
+> 报告：(a) spec 要求了、但缺失或只做了一部分的需求；(b) spec 没要求、却出现在改动里的行为（范围蔓延）；(c) 看起来实现了、但实现方式不对的需求；(d) 业务行为变了、但 `docs/specs/` 没有同步更新或没有追加变更记录的地方；(e) spec"测试接缝"表声明的验证方式没有落实的地方（声明了自动化测试却没有测试或没有 `[FR-xxx]` 标注，声明了降级验证却没有可执行的验证脚本）。每条都引用对应的 spec 原文或 FR 编号。400 字以内。
 
 ### 5. 汇总
 

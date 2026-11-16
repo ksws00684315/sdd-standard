@@ -30,13 +30,23 @@ if [[ -d openspec ]]; then
 else
   layout="docs"; changes_dir="docs/changes"; specs_dir="docs/specs"; spec_file="spec.md"
 fi
-echo "      service=${service} branch=${branch} layout=${layout}"
+
+# 平台仓（已接入研发云 SDD 数字员工）：docs/sdd-state.yaml 或 SPEC-* 目录存在即为平台布局，
+# 变更与门禁由平台 hooks 和 gate 报告承担，本脚本跳过旧制的变更 spec 检查。
+mode="legacy"
+if [[ -f docs/sdd-state.yaml ]] || compgen -G "docs/specs/SPEC-*" >/dev/null; then
+  mode="platform"
+fi
+echo "      service=${service} branch=${branch} layout=${layout} mode=${mode}"
 
 # Read "- <field>：<value>" from a spec header, given the file content on stdin.
 field() { sed -n "s/^- $1：[[:space:]]*//p" | head -1 | sed 's/[[:space:]]*$//'; }
 
 # ---- 1. change spec of the current requirement --------------------------------
 req_dir=""; status=""; version=""
+if [[ "${mode}" == "platform" ]]; then
+  ok "platform layout; change-spec checks delegated to platform hooks/gate reports"
+else
 case "${branch}" in
   feature/*) req_dir="${branch#feature/}" ;;
 esac
@@ -97,6 +107,7 @@ else
       fi
     fi
   fi
+fi
 fi
 
 # ---- 2. diff against the target branch ----------------------------------------

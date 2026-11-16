@@ -1,0 +1,8 @@
+# 域清单：域是 Spec ID 的命名空间（SPEC-<域>-<NNN>，三位序号），一个服务一个域，一域只归属一个仓。
+# 域取服务名去 service 后缀的大写。新增、改名需架构师评审。
+
+domains:
+  - domain: ORDER
+    owner_repo: order-service
+  - domain: INVENTORY
+    owner_repo: inventory-service

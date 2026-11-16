@@ -1,0 +1,13 @@
+# 仓清单：一个研发云项目 = 1 个治理仓 + N 个服务仓（多仓豁免登记，集团《SDD开发规范》第 9 章）。
+# 豁免理由：各服务独立交付发布、按模块组建开发小组。
+# 跨服务 E2E 测试落仓：暂无，后续指定一个服务仓承载或建集成测试仓。
+
+governance_repo: sdd-governance
+
+service_repos:
+  - name: order-service        # 工作空间目录名，也是 git 仓目录名
+    url: git@gitlab.example.com:group/order-service.git
+    domain: ORDER              # 与 domains.yaml 一致
+  - name: inventory-service
+    url: git@gitlab.example.com:group/inventory-service.git
+    domain: INVENTORY
